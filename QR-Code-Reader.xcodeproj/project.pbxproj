@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BD9C88921FF6A45000B5AA83 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9C88911FF6A45000B5AA83 /* WebViewController.swift */; };
 		BDB0C4E61FF6923B00668EDE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB0C4E51FF6923B00668EDE /* AppDelegate.swift */; };
 		BDB0C4E81FF6923B00668EDE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDB0C4E71FF6923B00668EDE /* ViewController.swift */; };
 		BDB0C4EB1FF6923B00668EDE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BDB0C4E91FF6923B00668EDE /* Main.storyboard */; };
@@ -16,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		BD9C88911FF6A45000B5AA83 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		BDB0C4E21FF6923B00668EDE /* QR-Code-Reader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "QR-Code-Reader.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BDB0C4E51FF6923B00668EDE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BDB0C4E71FF6923B00668EDE /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -58,6 +60,7 @@
 			children = (
 				BDB0C4E51FF6923B00668EDE /* AppDelegate.swift */,
 				BDB0C4E71FF6923B00668EDE /* ViewController.swift */,
+				BD9C88911FF6A45000B5AA83 /* WebViewController.swift */,
 				BDB0C4E91FF6923B00668EDE /* Main.storyboard */,
 				BDB0C4EF1FF6923B00668EDE /* Assets.xcassets */,
 				BDB0C4F11FF6923B00668EDE /* LaunchScreen.storyboard */,
@@ -142,6 +145,7 @@
 				BDB0C4E81FF6923B00668EDE /* ViewController.swift in Sources */,
 				BDB0C4E61FF6923B00668EDE /* AppDelegate.swift in Sources */,
 				BDB0C4EE1FF6923B00668EDE /* QR_Code_Reader.xcdatamodeld in Sources */,
+				BD9C88921FF6A45000B5AA83 /* WebViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
