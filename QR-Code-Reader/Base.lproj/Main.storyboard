@@ -42,6 +42,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
+                    <navigationItem key="navigationItem" id="bMV-8d-BVp"/>
                     <connections>
                         <outlet property="videoPreview" destination="e9a-E8-sQc" id="W3e-bY-RFZ"/>
                         <segue destination="R0N-VG-CFp" kind="show" identifier="openLink" id="7oQ-BQ-sRL"/>
@@ -60,16 +61,27 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ND0-42-ac9">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="64" width="375" height="603"/>
                                 <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </webView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cxw-zD-BFg">
+                                <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <items>
+                                    <barButtonItem tag="-4" title="返回" id="PLr-u5-7Pp">
+                                        <connections>
+                                            <segue destination="BYZ-38-t0r" kind="show" id="e6k-V7-DR1"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="ND0-42-ac9" firstAttribute="top" secondItem="8Y2-eD-blu" secondAttribute="top" id="3Ix-VQ-TCU"/>
-                            <constraint firstItem="ND0-42-ac9" firstAttribute="leading" secondItem="8Y2-eD-blu" secondAttribute="leading" id="4Tt-yL-xPB"/>
-                            <constraint firstAttribute="trailing" secondItem="ND0-42-ac9" secondAttribute="trailing" id="Ier-bF-qSB"/>
-                            <constraint firstItem="ND0-42-ac9" firstAttribute="bottom" secondItem="0CF-vX-ew1" secondAttribute="bottom" id="r1B-1c-qHA"/>
+                            <constraint firstItem="ND0-42-ac9" firstAttribute="trailing" secondItem="0CF-vX-ew1" secondAttribute="trailing" id="UpL-R1-Tcs"/>
+                            <constraint firstItem="ND0-42-ac9" firstAttribute="leading" secondItem="0CF-vX-ew1" secondAttribute="leading" id="eTx-lp-qOy"/>
+                            <constraint firstItem="ND0-42-ac9" firstAttribute="bottom" secondItem="0CF-vX-ew1" secondAttribute="bottom" id="ltw-G0-NBc"/>
+                            <constraint firstItem="ND0-42-ac9" firstAttribute="top" secondItem="8Y2-eD-blu" secondAttribute="top" constant="64" id="u8b-pW-1yw"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="0CF-vX-ew1"/>
                     </view>
@@ -79,7 +91,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="jcg-cK-pTZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="932" y="133"/>
+            <point key="canvasLocation" x="932" y="132.68365817091455"/>
         </scene>
     </scenes>
 </document>
