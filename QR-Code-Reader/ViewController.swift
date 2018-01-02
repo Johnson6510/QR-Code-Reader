@@ -15,6 +15,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     @IBOutlet var videoPreview: UIView!
     
     var stringURL = String()
+    var stringText = String()
 
     enum error: Error {
         case noCameraAvailable
@@ -22,7 +23,8 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     }
     
     var lastZoomFactor: CGFloat = 1.0
-    
+    var myButton = UIButton(type: .system)
+
     @IBAction func pinch(_ pinch: UIPinchGestureRecognizer) {
         let minimumZoom: CGFloat = 1.0
         let maximumZoom: CGFloat = 5.0
@@ -64,6 +66,16 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+
+/*        let fullScreenSize = UIScreen.main.bounds.size
+
+        myButton.frame = CGRect(
+            x: 0, y: 0, width: 100, height: 30)
+        myButton.setTitle("Try", for: .normal)
+        myButton.backgroundColor = UIColor.init(red: 0.9, green: 0.9, blue: 0.9, alpha: 1)
+        myButton.addTarget(nil, action: #selector(ViewController.simpleHint), for: .touchUpInside)
+        myButton.center = CGPoint( x: fullScreenSize.width * 0.5, y: fullScreenSize.height * 0.15)
+*/
         do {
             try scanQRCode()
         } catch {
@@ -77,16 +89,6 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         // Dispose of any resources that can be recreated.
     }
     
-    func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
-        if metadataObjects.count > 0 {
-            let machineReadableCode = metadataObjects[0] as! AVMetadataMachineReadableCodeObject
-            if machineReadableCode.type == AVMetadataObject.ObjectType.qr {
-                stringURL = machineReadableCode.stringValue!
-                performSegue(withIdentifier: "openLink", sender: self)
-            }
-        }
-    }
-
     func scanQRCode() throws {
         let avCaptureSession = AVCaptureSession()
         
@@ -113,6 +115,24 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         avCaptureSession.startRunning()
     }
     
+    func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
+        if metadataObjects.count > 0 {
+            let machineReadableCode = metadataObjects[0] as! AVMetadataMachineReadableCodeObject
+            if machineReadableCode.type == AVMetadataObject.ObjectType.qr {
+                //stringURL = machineReadableCode.stringValue!
+                //performSegue(withIdentifier: "openLink", sender: self)
+                if verifyUrl(str: machineReadableCode.stringValue!)  {
+                    stringURL = machineReadableCode.stringValue!
+                    performSegue(withIdentifier: "openLink", sender: self)
+                } else {
+                    stringText = machineReadableCode.stringValue!
+                    print(stringText)
+                    simpleHint(message: stringText)
+                }
+            }
+        }
+    }
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "openLink" {
             let destination = segue.destination as! WebViewController
@@ -120,5 +140,18 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         }
     }
     
+    private func verifyUrl(str:String) -> Bool {
+        if let url = NSURL(string: str) {
+            return UIApplication.shared.canOpenURL(url as URL)
+        }
+        return false
+    }
+
+    func simpleHint(message: String) {
+        let alert = UIAlertController(title: "Scan Result", message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "確認", style: .default)
+        alert.addAction(okAction)
+        self.present( alert, animated: true, completion: nil)
+    }
 }
 
