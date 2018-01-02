@@ -16,6 +16,9 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     var stringURL = String()
     var stringText = String()
+    
+    // Added to support different barcodes
+    let supportedBarCodes = [AVMetadataObject.ObjectType.qr, AVMetadataObject.ObjectType.code128, AVMetadataObject.ObjectType.code39, AVMetadataObject.ObjectType.code93, AVMetadataObject.ObjectType.upce, AVMetadataObject.ObjectType.pdf417, AVMetadataObject.ObjectType.ean13, AVMetadataObject.ObjectType.aztec]
 
     enum error: Error {
         case noCameraAvailable
@@ -106,7 +109,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         avCaptureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
         avCaptureSession.addInput(avCaptureInput)
         avCaptureSession.addOutput(avCaptureMetadataOutput)
-        avCaptureMetadataOutput.metadataObjectTypes = [AVMetadataObject.ObjectType.qr]
+        avCaptureMetadataOutput.metadataObjectTypes = supportedBarCodes//[AVMetadataObject.ObjectType.qr]
         
         let avCaptureVideoPreviewLayer = AVCaptureVideoPreviewLayer(session: avCaptureSession)
         avCaptureVideoPreviewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
@@ -118,9 +121,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
         if metadataObjects.count > 0 {
             let machineReadableCode = metadataObjects[0] as! AVMetadataMachineReadableCodeObject
-            if machineReadableCode.type == AVMetadataObject.ObjectType.qr {
-                //stringURL = machineReadableCode.stringValue!
-                //performSegue(withIdentifier: "openLink", sender: self)
+            if supportedBarCodes.contains(machineReadableCode.type) {
                 if verifyUrl(str: machineReadableCode.stringValue!)  {
                     stringURL = machineReadableCode.stringValue!
                     performSegue(withIdentifier: "openLink", sender: self)
