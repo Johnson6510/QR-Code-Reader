@@ -15,10 +15,50 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     @IBOutlet var videoPreview: UIView!
     
     var stringURL = String()
-    
+
     enum error: Error {
         case noCameraAvailable
         case videoInputInitFail
+    }
+    
+    var lastZoomFactor: CGFloat = 1.0
+    
+    @IBAction func pinch(_ pinch: UIPinchGestureRecognizer) {
+        let minimumZoom: CGFloat = 1.0
+        let maximumZoom: CGFloat = 5.0
+        
+        guard let avCaptureDevice = AVCaptureDevice.default(for: AVMediaType.video) else {
+            print("No Camera.")
+            return
+        }
+        
+        // Return zoom value between the minimum and maximum zoom values
+        func minMaxZoom(_ factor: CGFloat) -> CGFloat {
+            return min(min(max(factor, minimumZoom), maximumZoom), avCaptureDevice.activeFormat.videoMaxZoomFactor)
+        }
+        
+        func update(scale factor: CGFloat) {
+            do {
+                try avCaptureDevice.lockForConfiguration()
+                defer { avCaptureDevice.unlockForConfiguration() }
+                avCaptureDevice.videoZoomFactor = factor
+            } catch {
+                print("\(error.localizedDescription)")
+            }
+        }
+        
+        let newScaleFactor = minMaxZoom(pinch.scale * lastZoomFactor)
+        
+        switch pinch.state {
+        case .began:
+            fallthrough
+        case .changed:
+            update(scale: newScaleFactor)
+        case .ended:
+            lastZoomFactor = minMaxZoom(newScaleFactor)
+            update(scale: lastZoomFactor)
+        default: break
+        }
     }
 
     override func viewDidLoad() {
@@ -79,5 +119,6 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
             destination.url = URL(string: stringURL)
         }
     }
+    
 }
 

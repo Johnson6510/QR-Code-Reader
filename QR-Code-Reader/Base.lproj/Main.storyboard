@@ -27,6 +27,10 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="e9a-E8-sQc">
                                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                                 <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                                                <gestureRecognizers/>
+                                                <connections>
+                                                    <outletCollection property="gestureRecognizers" destination="MbM-RI-W35" appends="YES" id="dT9-P0-QtW"/>
+                                                </connections>
                                             </view>
                                         </subviews>
                                     </stackView>
@@ -49,6 +53,11 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <pinchGestureRecognizer id="MbM-RI-W35">
+                    <connections>
+                        <action selector="pinch:" destination="BYZ-38-t0r" id="44M-lW-abl"/>
+                    </connections>
+                </pinchGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="136.80000000000001" y="132.68365817091455"/>
         </scene>
