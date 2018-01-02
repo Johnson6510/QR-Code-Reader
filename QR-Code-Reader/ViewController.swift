@@ -105,11 +105,18 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
             throw error.videoInputInitFail
         }
         
+        //try to enable auto focus
+        if(avCaptureDevice.isFocusModeSupported(.continuousAutoFocus)) {
+            try! avCaptureDevice.lockForConfiguration()
+            avCaptureDevice.focusMode = .continuousAutoFocus
+            avCaptureDevice.unlockForConfiguration()
+        }
+        
         let avCaptureMetadataOutput = AVCaptureMetadataOutput()
         avCaptureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
         avCaptureSession.addInput(avCaptureInput)
         avCaptureSession.addOutput(avCaptureMetadataOutput)
-        avCaptureMetadataOutput.metadataObjectTypes = supportedBarCodes//[AVMetadataObject.ObjectType.qr]
+        avCaptureMetadataOutput.metadataObjectTypes = supportedBarCodes
         
         let avCaptureVideoPreviewLayer = AVCaptureVideoPreviewLayer(session: avCaptureSession)
         avCaptureVideoPreviewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
