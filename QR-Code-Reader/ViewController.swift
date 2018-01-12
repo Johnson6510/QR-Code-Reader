@@ -16,6 +16,9 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     var stringURL = String()
     var stringText = String()
+    var cameraDevice: AVCaptureDevice?
+    var previewLayer: AVCaptureVideoPreviewLayer?
+
     
     // Added to support different barcodes
     let supportedBarCodes = [AVMetadataObject.ObjectType.qr, AVMetadataObject.ObjectType.code128, AVMetadataObject.ObjectType.code39, AVMetadataObject.ObjectType.code93, AVMetadataObject.ObjectType.upce, AVMetadataObject.ObjectType.pdf417, AVMetadataObject.ObjectType.ean13, AVMetadataObject.ObjectType.aztec]
@@ -74,6 +77,20 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         } catch {
             print("Failed to scan the QR/Bar code.")
         }
+        
+        //debig for big5 convert to utf8
+        /*
+        //let code = "､E､ｭｵLｹ]"
+        let code = "ｶﾇｲﾎ"
+        let big5encoding = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(UInt(CFStringEncodings.big5.rawValue))))
+        let code2 = String(data: code.data(using: .nonLossyASCII)!, encoding: big5encoding)
+
+        print("Big5 encoded String: " + code2!)
+         */
+       
+
+        
+        
     }
     
     override func didReceiveMemoryWarning() {
@@ -81,13 +98,39 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         // Dispose of any resources that can be recreated.
     }
     
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let screenSize = videoPreview.bounds.size
+        if let touchPoint = touches.first {
+            let x = touchPoint.location(in: videoPreview).y / screenSize.height
+            let y = 1.0 - touchPoint.location(in: videoPreview).x / screenSize.width
+            let focusPoint = CGPoint(x: x, y: y)
+            
+            if let device = cameraDevice {
+                do {
+                    try device.lockForConfiguration()
+                    device.focusPointOfInterest = focusPoint
+                    device.focusMode = .continuousAutoFocus
+                    device.exposurePointOfInterest = focusPoint
+                    device.exposureMode = .continuousAutoExposure
+                    device.unlockForConfiguration()
+                }
+                catch {
+                    // just ignore
+                }
+            }
+        }
+    }
+
     func scanQRCode() throws {
         let avCaptureSession = AVCaptureSession()
-        
+        previewLayer = AVCaptureVideoPreviewLayer(session: avCaptureSession)
+
         guard let avCaptureDevice = AVCaptureDevice.default(for: AVMediaType.video) else {
             print("No Camera.")
             throw error.noCameraAvailable
         }
+        cameraDevice = avCaptureDevice
         
         guard let avCaptureInput = try? AVCaptureDeviceInput(device: avCaptureDevice) else {
             print("Fail to Init Camera.")
@@ -95,12 +138,19 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         }
         
         //try to enable auto focus
-        if(avCaptureDevice.isFocusModeSupported(.continuousAutoFocus)) {
+        if avCaptureDevice.isFocusModeSupported(.continuousAutoFocus) {
             try! avCaptureDevice.lockForConfiguration()
             avCaptureDevice.focusMode = .continuousAutoFocus
             avCaptureDevice.unlockForConfiguration()
         }
-        
+
+        //try to enable auto exposure
+        if avCaptureDevice.isExposureModeSupported(.autoExpose) {
+            try! avCaptureDevice.lockForConfiguration()
+            avCaptureDevice.exposureMode = .continuousAutoExposure
+            avCaptureDevice.unlockForConfiguration()
+        }
+
         let avCaptureMetadataOutput = AVCaptureMetadataOutput()
         avCaptureMetadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
         avCaptureSession.addInput(avCaptureInput)
@@ -274,8 +324,8 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         return qrCodeText.substring(from: 0, to: 2).isStar()
     }
 
-    //"ZH0872526710701013550000000000000004d0000000028997723uaxq26SZudKCJOGnIG/9SA==:**********:2:2:1:味味一品原汁珍味牛肉麵185g:1:46:"
-    
+    //big5 - "YH625882881061129065500000381000003ae0000000046038423pSPPr4Z2OFqheeh9OP47YA==:**********:1:1:0:､E､ｭｵLｹ]:35.00:26.90"
+    //utf8 - "ZH0872526710701013550000000000000004d0000000028997723uaxq26SZudKCJOGnIG/9SA==:**********:2:2:1:味味一品原汁珍味牛肉麵185g:1:46:"
     func invoiceParse(qrCodeText: String) {
         invoiceDict["  01.發票字軌"] = qrCodeText.substring(from: 0, to: 2) + "-" + qrCodeText.substring(from: 2, to: 10) //10
         invoiceDict["  02.開立日期"] = qrCodeText.substring(from: 10, to: 13) + "年" + qrCodeText.substring(from: 13, to: 15) + "月" + qrCodeText.substring(from: 15, to: 17) + "日" //7
@@ -299,27 +349,13 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
             for idx in 1...index {
                 itemDictArray.append("  產品明細" + String(idx) + ": ")
                 //need to check Big5 & Base64 case
-                /*
-                if itemArray[3] == "0" {
-                    //let value = CFStringEncoding(CFStringEncodings.big5.rawValue)
-                    //let big5 = CFStringConvertEncodingToNSStringEncoding(value)
-                    
-                    //let data = itemArray[idx*3+1].data(using: String.Encoding(rawValue: big5), allowLossyConversion: true)
-                    //let string = String(data: data!, encoding: String.Encoding(rawValue: big5))
-                    //itemArray[idx*3+1] = String(data: data!, encoding: String.Encoding(rawValue: big5))
-                    
-                    let cfEnc = CFStringEncodings.big5
-                    let nsEnc = CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(cfEnc.rawValue))
-                    let big5encoding = String.Encoding(rawValue: nsEnc) // String.Encoding
-                    // let code = "\u{00D6}\u{00F7}\u{00D2}\u{00B3}\u{00B8}\u{00C5}\u{00BF}\u{00F6}"
-                    let bytes = itemArray[idx*3+1].unicodeScalars.map { UInt8(truncatingIfNeeded: $0.value) }
-                    if let result = String(bytes: bytes, encoding: big5encoding) {
-                        print("AAA" + result)
-                    }
-
-                }*/
-                
-                itemDictArray.append("    a.品名: " + itemArray[idx*3+1])
+                if itemArray[3] == "0" { // Chinese Big5
+                    itemDictArray.append("    a.品名: " + itemArray[idx*3+1])
+                } else if itemArray[3] == "1" { // UTF-8
+                    itemDictArray.append("    a.品名: " + itemArray[idx*3+1])
+                } else if itemArray[3] == "2" { //Base64
+                    itemDictArray.append("    a.品名: " + itemArray[idx*3+1])
+                }
                 itemDictArray.append("    b.數量: " + itemArray[idx*3+2])
                 itemDictArray.append("    c.單價: " + itemArray[idx*3+3])
                 //itemDictArray.append("    d.補充說明: " + itemArray[idx*4+3])
@@ -347,6 +383,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         if itemArray != [""] {
             let index = (itemArray.count)/3
             for idx in 0..<index {
+                //need to check Big5 & Base64 case
                 itemDictArray.append("  產品明細" + String(idx+1) + ": ")
                 itemDictArray.append("    a.品名: " + itemArray[idx*3+0])
                 itemDictArray.append("    b.數量: " + itemArray[idx*3+1])
@@ -366,7 +403,7 @@ struct CharLib {
 }
 
 extension String {
-    //range
+    //substring(range)
     func substring(from: Int, to: Int) -> String {
         let start = index(startIndex, offsetBy: from)
         let end = index(start, offsetBy: to - from)
@@ -376,7 +413,7 @@ extension String {
         return substring(from: range.lowerBound, to: range.upperBound)
     }
     
-    //to
+    //substring(startIndex ... to)
     func substring(to: Int) -> String {
         let end = index(startIndex, offsetBy: to)
         return String(self[..<end])
@@ -385,7 +422,7 @@ extension String {
         return substring(to: to.upperBound)
     }
     
-    //from
+    //substring(from ... endIndex)
     func substring(from: Int) -> String {
         let start = index(startIndex, offsetBy: from)
         return String(self[start...])
@@ -395,29 +432,28 @@ extension String {
     }
     
     //determines if string is a number (0-9)
-    func isNumber() ->Bool {
+    func isNumber() -> Bool {
         let charset = Set(self)
         return charset.isSubset(of: CharLib.numset)
     }
     
     //determines if string is a letterset (a-z)
-    func isLetterset() ->Bool {
+    func isLetterset() -> Bool {
         let charset = Set(self.lowercased())
         return charset.isSubset(of: CharLib.letterset)
     }
     
     //determines if string is a colon (:)
-    func isColon() ->Bool {
+    func isColon() -> Bool {
         let charset = Set(self)
         return charset.isSubset(of: CharLib.colon)
     }
     
     //determines if string is a star (*)
-    func isStar() ->Bool {
+    func isStar() -> Bool {
         let charset = Set(self)
         return charset.isSubset(of: CharLib.star)
     }
-
 }
 
 
