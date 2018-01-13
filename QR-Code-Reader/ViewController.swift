@@ -124,7 +124,9 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     }
   
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        layer.removeFromSuperlayer()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.layer.removeFromSuperlayer()
+        }
     }
     
     func setUpLayer(rect: CGRect) {
