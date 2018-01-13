@@ -18,7 +18,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var stringText = String()
     var cameraDevice: AVCaptureDevice?
     var previewLayer: AVCaptureVideoPreviewLayer?
-
+    var layer = CAShapeLayer()
     
     // Added to support different barcodes
     let supportedBarCodes = [AVMetadataObject.ObjectType.qr, AVMetadataObject.ObjectType.code128, AVMetadataObject.ObjectType.code39, AVMetadataObject.ObjectType.code93, AVMetadataObject.ObjectType.upce, AVMetadataObject.ObjectType.pdf417, AVMetadataObject.ObjectType.ean13, AVMetadataObject.ObjectType.aztec]
@@ -97,7 +97,6 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let screenSize = videoPreview.bounds.size
@@ -106,6 +105,8 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
             let y = 1.0 - touchPoint.location(in: videoPreview).x / screenSize.width
             let focusPoint = CGPoint(x: x, y: y)
             
+            setUpLayer(rect: CGRect(origin: CGPoint(x: touchPoint.location(in: videoPreview).x-50, y: touchPoint.location(in: videoPreview).y-50), size: CGSize(width: 100, height: 100)))
+
             if let device = cameraDevice {
                 do {
                     try device.lockForConfiguration()
@@ -121,10 +122,22 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
             }
         }
     }
+  
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        layer.removeFromSuperlayer()
+    }
+    
+    func setUpLayer(rect: CGRect) {
+        layer.path = UIBezierPath(roundedRect: rect, cornerRadius: 5).cgPath
+
+        layer.fillColor = UIColor.clear.cgColor
+        layer.strokeColor = UIColor.yellow.cgColor
+
+        view.layer.addSublayer(layer)
+    }
 
     func scanQRCode() throws {
         let avCaptureSession = AVCaptureSession()
-        previewLayer = AVCaptureVideoPreviewLayer(session: avCaptureSession)
 
         guard let avCaptureDevice = AVCaptureDevice.default(for: AVMediaType.video) else {
             print("No Camera.")
@@ -158,6 +171,8 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         avCaptureMetadataOutput.metadataObjectTypes = supportedBarCodes
         
         let avCaptureVideoPreviewLayer = AVCaptureVideoPreviewLayer(session: avCaptureSession)
+        previewLayer = avCaptureVideoPreviewLayer
+
         avCaptureVideoPreviewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
         avCaptureVideoPreviewLayer.frame = videoPreview.bounds
         self.videoPreview.layer.addSublayer(avCaptureVideoPreviewLayer)
