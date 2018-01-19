@@ -185,12 +185,16 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
         if metadataObjects.count > 0 {
             let machineReadableCode = metadataObjects[0] as! AVMetadataMachineReadableCodeObject
             if supportedBarCodes.contains(machineReadableCode.type) {
-                if verifyUrl(str: machineReadableCode.stringValue!)  {
-                    stringURL = machineReadableCode.stringValue!
-                    performSegue(withIdentifier: "openLink", sender: self)
+                let stringText: String = machineReadableCode.stringValue!
+                print(stringText)
+                if verifyUrl(str: stringText) {
+                    if stringText.lowercased().contains("line") || stringText.lowercased().contains("facebook") {
+                        UIApplication.shared.open(URL(string: stringText)!, options: [:], completionHandler: nil)
+                    } else {
+                        stringURL = stringText
+                        performSegue(withIdentifier: "openLink", sender: self)
+                    }
                 } else {
-                    stringText = machineReadableCode.stringValue!
-                    print(stringText)
                     if invoiceVerify(qrCodeText: stringText) {
                         invoiceParse(qrCodeText: stringText)
                         let sortedDict = invoiceDict.sorted { $0.0 < $1.0 }
@@ -213,7 +217,6 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
                             }
                             simpleHint(title: "中華民國電子發票，第二頁", message: invoiceStr)
                     } else {
-                        print(stringText)
                         simpleHint(title: "掃描結果", message: stringText)
                     }
                 }
