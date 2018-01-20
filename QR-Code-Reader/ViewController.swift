@@ -10,7 +10,7 @@
 import UIKit
 import AVFoundation
 
-class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
+class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     @IBOutlet var videoPreview: UIView!
     
@@ -19,6 +19,51 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var cameraDevice: AVCaptureDevice?
     var previewLayer: AVCaptureVideoPreviewLayer?
     var layer = CAShapeLayer()
+    
+    @IBOutlet weak var pictureBtn: UIButton!
+    
+    let imagePicker = UIImagePickerController()
+    @IBAction func pictureBtnAction(_ sender: AnyObject) {
+        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+            imagePicker.delegate = self
+            imagePicker.sourceType = .photoLibrary
+            imagePicker.allowsEditing = false
+            present(imagePicker, animated: true, completion: nil)
+        }
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        print("Cancel")
+        dismiss(animated: true, completion: nil)
+    }
+    
+    //internal func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    @objc internal func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        print("Image Picker")
+        if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
+            print("Get Image")
+            let detector: CIDetector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: [CIDetectorAccuracy: CIDetectorAccuracyHigh])!
+            let ciImage: CIImage = CIImage(image: image)!
+            let features = detector.features(in: ciImage)
+            stringText = ""
+            for feature in features as! [CIQRCodeFeature] {
+                stringText += feature.messageString!
+            }
+        } else {
+            print("Something went wrong")
+        }
+        
+        picker.dismiss(animated: true, completion: nil)
+        dismiss(animated: true, completion: nil)
+        
+        if stringText == "" {
+            print("nothing")
+        } else {
+            print("message: \(stringText)")
+            qrCode(stringText: stringText)
+        }
+        stringText = ""
+    }
     
     // Added to support different barcodes
     let supportedBarCodes = [AVMetadataObject.ObjectType.qr, AVMetadataObject.ObjectType.code128, AVMetadataObject.ObjectType.code39, AVMetadataObject.ObjectType.code93, AVMetadataObject.ObjectType.upce, AVMetadataObject.ObjectType.pdf417, AVMetadataObject.ObjectType.ean13, AVMetadataObject.ObjectType.aztec]
@@ -72,24 +117,18 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+
         do {
             try scanQRCode()
         } catch {
             print("Failed to scan the QR/Bar code.")
         }
-        
-        //debig for big5 convert to utf8
-        /*
-        //let code = "､E､ｭｵLｹ]"
-        let code = "ｶﾇｲﾎ"
-        let big5encoding = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(CFStringEncoding(UInt(CFStringEncodings.big5.rawValue))))
-        let code2 = String(data: code.data(using: .nonLossyASCII)!, encoding: big5encoding)
 
-        print("Big5 encoded String: " + code2!)
-         */
-       
-
-        
+        //pictureBtn.setImage(UIImage(named: "picture") , for: UIControlState.normal)
+        pictureBtn.setTitle("", for: .normal)
+        pictureBtn.backgroundColor = UIColor.init(patternImage: UIImage(named: "picture")!)
+        videoPreview.addSubview(pictureBtn)
+        imagePicker.delegate = self
         
     }
     
@@ -187,39 +226,43 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
             if supportedBarCodes.contains(machineReadableCode.type) {
                 let stringText: String = machineReadableCode.stringValue!
                 print(stringText)
-                if verifyUrl(str: stringText) {
-                    if stringText.lowercased().contains("line") || stringText.lowercased().contains("facebook") {
-                        UIApplication.shared.open(URL(string: stringText)!, options: [:], completionHandler: nil)
-                    } else {
-                        stringURL = stringText
-                        performSegue(withIdentifier: "openLink", sender: self)
-                    }
-                } else {
-                    if invoiceVerify(qrCodeText: stringText) {
-                        invoiceParse(qrCodeText: stringText)
-                        let sortedDict = invoiceDict.sorted { $0.0 < $1.0 }
-                        var invoiceStr: String = ""
-                        for (item, value) in sortedDict {
-                            print("\(item): \(value)")
-                            invoiceStr += "\(item): \(value)\n"
-                        }
-                        for item in itemDictArray {
-                            print(item)
-                            invoiceStr += "\(item)\n"
-                        }
-                        simpleHint(title: "中華民國電子發票，第一頁", message: invoiceStr)
-                    } else if invoice2Verify(qrCodeText: stringText) {
-                            invoice2Parse(qrCodeText: stringText)
-                            var invoiceStr: String = ""
-                            for item in itemDictArray {
-                                print(item)
-                                invoiceStr += "\(item)\n"
-                            }
-                            simpleHint(title: "中華民國電子發票，第二頁", message: invoiceStr)
-                    } else {
-                        simpleHint(title: "掃描結果", message: stringText)
-                    }
+                qrCode(stringText: stringText)
+            }
+        }
+    }
+    
+    func qrCode(stringText: String) {
+        if verifyUrl(str: stringText) {
+            if stringText.lowercased().contains("line") || stringText.lowercased().contains("facebook") {
+                UIApplication.shared.open(URL(string: stringText)!, options: [:], completionHandler: nil)
+            } else {
+                stringURL = stringText
+                performSegue(withIdentifier: "openLink", sender: self)
+            }
+        } else {
+            if invoiceVerify(qrCodeText: stringText) {
+                invoiceParse(qrCodeText: stringText)
+                let sortedDict = invoiceDict.sorted { $0.0 < $1.0 }
+                var invoiceStr: String = ""
+                for (item, value) in sortedDict {
+                    print("\(item): \(value)")
+                    invoiceStr += "\(item): \(value)\n"
                 }
+                for item in itemDictArray {
+                    print(item)
+                    invoiceStr += "\(item)\n"
+                }
+                simpleHint(title: "中華民國電子發票，第一頁", message: invoiceStr)
+            } else if invoice2Verify(qrCodeText: stringText) {
+                invoice2Parse(qrCodeText: stringText)
+                var invoiceStr: String = ""
+                for item in itemDictArray {
+                    print(item)
+                    invoiceStr += "\(item)\n"
+                }
+                simpleHint(title: "中華民國電子發票，第二頁", message: invoiceStr)
+            } else {
+                simpleHint(title: "掃描結果", message: stringText)
             }
         }
     }

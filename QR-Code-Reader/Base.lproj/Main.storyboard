@@ -26,8 +26,25 @@
                                         <subviews>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="e9a-E8-sQc">
                                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                                <subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0A5-Tp-gz9">
+                                                        <rect key="frame" x="307" y="599" width="38" height="38"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="38" id="9j1-75-mDo"/>
+                                                            <constraint firstAttribute="height" constant="38" id="Stz-YQ-NSr"/>
+                                                        </constraints>
+                                                        <state key="normal" title="Button"/>
+                                                        <connections>
+                                                            <action selector="pictureBtnAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="626-fx-bq2"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
                                                 <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                                 <gestureRecognizers/>
+                                                <constraints>
+                                                    <constraint firstAttribute="trailing" secondItem="0A5-Tp-gz9" secondAttribute="trailing" constant="30" id="daB-LJ-0E3"/>
+                                                    <constraint firstAttribute="bottom" secondItem="0A5-Tp-gz9" secondAttribute="bottom" constant="30" id="xrG-0w-K9Y"/>
+                                                </constraints>
                                                 <connections>
                                                     <outletCollection property="gestureRecognizers" destination="MbM-RI-W35" appends="YES" id="dT9-P0-QtW"/>
                                                 </connections>
@@ -48,6 +65,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="bMV-8d-BVp"/>
                     <connections>
+                        <outlet property="pictureBtn" destination="0A5-Tp-gz9" id="NAK-Lf-CXA"/>
                         <outlet property="videoPreview" destination="e9a-E8-sQc" id="W3e-bY-RFZ"/>
                         <segue destination="R0N-VG-CFp" kind="show" identifier="openLink" id="7oQ-BQ-sRL"/>
                     </connections>
