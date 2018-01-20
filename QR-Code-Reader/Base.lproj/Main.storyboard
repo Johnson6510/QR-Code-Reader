@@ -27,23 +27,36 @@
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="e9a-E8-sQc">
                                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                                 <subviews>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0A5-Tp-gz9">
-                                                        <rect key="frame" x="307" y="599" width="38" height="38"/>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0A5-Tp-gz9">
+                                                        <rect key="frame" x="269" y="561" width="76" height="76"/>
                                                         <constraints>
-                                                            <constraint firstAttribute="width" constant="38" id="9j1-75-mDo"/>
-                                                            <constraint firstAttribute="height" constant="38" id="Stz-YQ-NSr"/>
+                                                            <constraint firstAttribute="width" constant="76" id="aw4-RV-9hH"/>
+                                                            <constraint firstAttribute="height" constant="76" id="tEX-Ri-vgN"/>
                                                         </constraints>
                                                         <state key="normal" title="Button"/>
                                                         <connections>
                                                             <action selector="pictureBtnAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="626-fx-bq2"/>
                                                         </connections>
                                                     </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="td4-CJ-7ZO">
+                                                        <rect key="frame" x="30" y="561" width="76" height="76"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="76" id="2iQ-OW-1Wi"/>
+                                                            <constraint firstAttribute="width" constant="76" id="pXj-yI-KuB"/>
+                                                        </constraints>
+                                                        <state key="normal" title="Button"/>
+                                                        <connections>
+                                                            <action selector="lightBtnAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Be2-vN-azR"/>
+                                                        </connections>
+                                                    </button>
                                                 </subviews>
                                                 <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                                 <gestureRecognizers/>
                                                 <constraints>
-                                                    <constraint firstAttribute="trailing" secondItem="0A5-Tp-gz9" secondAttribute="trailing" constant="30" id="daB-LJ-0E3"/>
-                                                    <constraint firstAttribute="bottom" secondItem="0A5-Tp-gz9" secondAttribute="bottom" constant="30" id="xrG-0w-K9Y"/>
+                                                    <constraint firstAttribute="trailing" secondItem="0A5-Tp-gz9" secondAttribute="trailing" constant="30" id="Dkt-Va-vv9"/>
+                                                    <constraint firstAttribute="bottom" secondItem="td4-CJ-7ZO" secondAttribute="bottom" constant="30" id="GPe-Cf-tca"/>
+                                                    <constraint firstItem="td4-CJ-7ZO" firstAttribute="leading" secondItem="e9a-E8-sQc" secondAttribute="leading" constant="30" id="klg-oS-D3c"/>
+                                                    <constraint firstAttribute="bottom" secondItem="0A5-Tp-gz9" secondAttribute="bottom" constant="30" id="vUp-Z6-fXt"/>
                                                 </constraints>
                                                 <connections>
                                                     <outletCollection property="gestureRecognizers" destination="MbM-RI-W35" appends="YES" id="dT9-P0-QtW"/>
@@ -65,6 +78,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="bMV-8d-BVp"/>
                     <connections>
+                        <outlet property="lightBtn" destination="td4-CJ-7ZO" id="ieD-AJ-Fwj"/>
                         <outlet property="pictureBtn" destination="0A5-Tp-gz9" id="NAK-Lf-CXA"/>
                         <outlet property="videoPreview" destination="e9a-E8-sQc" id="W3e-bY-RFZ"/>
                         <segue destination="R0N-VG-CFp" kind="show" identifier="openLink" id="7oQ-BQ-sRL"/>

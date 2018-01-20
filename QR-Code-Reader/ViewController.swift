@@ -19,9 +19,10 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
     var cameraDevice: AVCaptureDevice?
     var previewLayer: AVCaptureVideoPreviewLayer?
     var layer = CAShapeLayer()
+    var flashLight: Bool = false
     
     @IBOutlet weak var pictureBtn: UIButton!
-    
+
     let imagePicker = UIImagePickerController()
     @IBAction func pictureBtnAction(_ sender: AnyObject) {
         if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
@@ -37,7 +38,6 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         dismiss(animated: true, completion: nil)
     }
     
-    //internal func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
     @objc internal func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         print("Image Picker")
         if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
@@ -65,6 +65,31 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         stringText = ""
     }
     
+    @IBOutlet weak var lightBtn: UIButton!
+
+    @IBAction func lightBtnAction(_ sender: AnyObject) {
+        guard let device = AVCaptureDevice.default(for: AVMediaType.video) else {
+            return
+        }
+        
+        if device.hasTorch {
+            do {
+                try device.lockForConfiguration()
+                if flashLight == false {
+                    device.torchMode = .on
+                } else {
+                    device.torchMode = .off
+                }
+                flashLight = !flashLight
+                device.unlockForConfiguration()
+            } catch {
+                print("Torch could not be used")
+            }
+        } else {
+            print("Torch is not available")
+        }
+    }
+
     // Added to support different barcodes
     let supportedBarCodes = [AVMetadataObject.ObjectType.qr, AVMetadataObject.ObjectType.code128, AVMetadataObject.ObjectType.code39, AVMetadataObject.ObjectType.code93, AVMetadataObject.ObjectType.upce, AVMetadataObject.ObjectType.pdf417, AVMetadataObject.ObjectType.ean13, AVMetadataObject.ObjectType.aztec]
     
@@ -124,10 +149,18 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
             print("Failed to scan the QR/Bar code.")
         }
 
-        //pictureBtn.setImage(UIImage(named: "picture") , for: UIControlState.normal)
         pictureBtn.setTitle("", for: .normal)
-        pictureBtn.backgroundColor = UIColor.init(patternImage: UIImage(named: "picture")!)
+        pictureBtn.setImage(UIImage(named: "photo-library"), for: .normal)
+        pictureBtn.imageView?.contentMode = .scaleAspectFit
+        pictureBtn.contentMode = .center
         videoPreview.addSubview(pictureBtn)
+        
+        lightBtn.setTitle("", for: .normal)
+        lightBtn.setImage(UIImage(named: "flash-light"), for: .normal)
+        lightBtn.imageView?.contentMode = .scaleAspectFit
+        lightBtn.contentMode = .center
+        videoPreview.addSubview(lightBtn)
+
         imagePicker.delegate = self
         
     }
