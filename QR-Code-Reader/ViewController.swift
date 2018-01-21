@@ -19,7 +19,8 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
     var cameraDevice: AVCaptureDevice?
     var previewLayer: AVCaptureVideoPreviewLayer?
     var layer = CAShapeLayer()
-    var flashLight: Bool = false
+    var torchSlider: UISlider?
+    var torchValue: Float = 1.0
     
     @IBOutlet weak var pictureBtn: UIButton!
 
@@ -75,12 +76,39 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         if device.hasTorch {
             do {
                 try device.lockForConfiguration()
-                if flashLight == false {
+                if device.isTorchActive == false {
                     device.torchMode = .on
+                    torchSlider = UISlider(frame: CGRect(x: 30, y: videoPreview.bounds.size.height - 30, width: 100, height: 30))
+                    torchSlider?.maximumValue = 1.00
+                    torchSlider?.minimumValue = 0.01
+                    torchSlider?.value = torchValue
+                    torchSlider?.addTarget(self, action: #selector(sliderDidchange(_ :)), for: UIControlEvents.valueChanged)
+                    videoPreview.addSubview(torchSlider!)
                 } else {
                     device.torchMode = .off
+                    torchSlider?.removeFromSuperview()
                 }
-                flashLight = !flashLight
+                device.unlockForConfiguration()
+            } catch {
+                print("Torch could not be used")
+            }
+        } else {
+            print("Torch is not available")
+        }
+    }
+    
+    @objc func sliderDidchange(_ torchSlider: UISlider) {
+        guard let device = AVCaptureDevice.default(for: AVMediaType.video) else {
+            return
+        }
+        if device.hasTorch {
+            do {
+                try device.lockForConfiguration()
+                if device.isTorchActive == true {
+                    torchValue = torchSlider.value
+                    print(torchValue)
+                    try device.setTorchModeOn(level: torchValue)
+                }
                 device.unlockForConfiguration()
             } catch {
                 print("Torch could not be used")
@@ -90,6 +118,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         }
     }
 
+        
     // Added to support different barcodes
     let supportedBarCodes = [AVMetadataObject.ObjectType.qr, AVMetadataObject.ObjectType.code128, AVMetadataObject.ObjectType.code39, AVMetadataObject.ObjectType.code93, AVMetadataObject.ObjectType.upce, AVMetadataObject.ObjectType.pdf417, AVMetadataObject.ObjectType.ean13, AVMetadataObject.ObjectType.aztec]
     
@@ -160,7 +189,7 @@ class ViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate, 
         lightBtn.imageView?.contentMode = .scaleAspectFit
         lightBtn.contentMode = .center
         videoPreview.addSubview(lightBtn)
-
+        
         imagePicker.delegate = self
         
     }
